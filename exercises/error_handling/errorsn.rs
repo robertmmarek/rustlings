@@ -20,12 +20,18 @@ use std::fmt;
 use std::io;
 
 // PositiveNonzeroInteger is a struct defined below the tests.
-fn read_and_validate(b: &mut dyn io::BufRead) -> Result<PositiveNonzeroInteger, ???> {
+fn read_and_validate(b: &mut dyn io::BufRead) -> Result<PositiveNonzeroInteger, Box<dyn error::Error>> {
     let mut line = String::new();
     b.read_line(&mut line);
-    let num: i64 = line.trim().parse();
+    let num: i64 = match line.trim().parse(){
+        Ok(el) => el,
+        Err(err) => return Err(Box::new(io::Error::new(io::ErrorKind::BrokenPipe, "uh-oh!")))
+    };
     let answer = PositiveNonzeroInteger::new(num);
-    answer
+    match answer{
+        Ok(el) => Ok(el),
+        Err(err) => Err(Box::new(err))
+    }
 }
 
 // This is a test helper function that turns a &str into a BufReader.

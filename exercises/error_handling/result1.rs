@@ -6,13 +6,17 @@ struct PositiveNonzeroInteger(u64);
 
 #[derive(PartialEq, Debug)]
 enum CreationError {
-    Negative,
-    Zero,
+    Negative=-10,
+    Zero=0,
 }
 
 impl PositiveNonzeroInteger {
     fn new(value: i64) -> Result<PositiveNonzeroInteger, CreationError> {
-        Ok(PositiveNonzeroInteger(value as u64))
+        match value > 0 {
+            true => Ok(PositiveNonzeroInteger(value as u64)),
+            false => Err(if value < 0 {CreationError::Negative} else {CreationError::Zero})
+        }
+        
     }
 }
 

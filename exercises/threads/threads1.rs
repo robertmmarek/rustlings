@@ -14,15 +14,17 @@ struct JobStatus {
 }
 
 fn main() {
-    let status = Arc::new(JobStatus { jobs_completed: 0 });
+    let status = Arc::new(std::sync::Mutex::new(JobStatus { jobs_completed: 0 }));
     let status_shared = status.clone();
     thread::spawn(move || {
         for _ in 0..10 {
             thread::sleep(Duration::from_millis(250));
-            status_shared.jobs_completed += 1;
+            let mut el = status_shared.lock().unwrap();
+            el.jobs_completed += 1;
         }
     });
-    while status.jobs_completed < 10 {
+    let status_counter = status.lock().unwrap();
+    while status_counter.jobs_completed < 10 {
         println!("waiting... ");
         thread::sleep(Duration::from_millis(500));
     }
